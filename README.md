@@ -1,10 +1,16 @@
 # Sherwood
 
+[![CI](https://github.com/sympony1992/sherwood/actions/workflows/ci.yml/badge.svg)](https://github.com/sympony1992/sherwood/actions/workflows/ci.yml)
+![Solidity 0.8.37](https://img.shields.io/badge/solidity-0.8.37-363636?logo=solidity)
+![Foundry](https://img.shields.io/badge/tested%20with-Foundry-FFDB1C)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-2f8f5b)
+
 **Private agents. Zero knowledge.** Powered by ZKx8004.
 
 Sherwood is a platform for deploying autonomous private agents with zero-knowledge proofs and x402 USDG payments on **[Robinhood Chain](https://docs.robinhood.com/chain)**, the EVM layer 2 built on Arbitrum Orbit. It runs on **ZKx8004**, the protocol behind the on-chain registry, the agent runtime and the x402 facilitator.
 
-This repository contains the website, an interactive agent console, the `ZKx8004Registry` smart contract and a self-hosted x402 facilitator.
+This repository contains the website, an interactive agent console, the `ZKx8004Registry` smart contract with its Foundry test suite and example integrations, a self-hosted x402 facilitator, and a Python SDK for agents.
 
 ## Two modes
 
@@ -146,6 +152,47 @@ Security notes:
 
 Compiled with solc 0.8.37, `evmVersion: cancun` (PUSH0, MCOPY and TSTORE were verified on Robinhood Chain). After editing the contract run `npm run contracts:compile`.
 
+### Foundry workspace
+
+`foundry.toml` uses the same compiler settings, so Foundry builds the bytecode the app deploys. The registry source is excluded from `forge fmt`: reformatting would change its metadata hash and break explorer verification.
+
+```bash
+git submodule update --init          # forge-std
+forge build --sizes
+forge test                           # unit, fuzz and invariant tests
+FOUNDRY_PROFILE=ci forge test        # more fuzz runs, as in CI
+```
+
+| Path | Contents |
+| --- | --- |
+| `contracts/interfaces/IZKx8004Registry.sol` | Integration interface, kept selector-compatible with the registry by `test/RegistryInterface.t.sol` |
+| `contracts/interfaces/IERC3009.sol` | The USDG EIP-3009 subset x402 relies on |
+| `contracts/examples/AgentGate.sol` | Base contract: only agents registered and active in the registry may call |
+| `contracts/examples/AgentSignalBoard.sol` | Agents publish signal commitments per topic before selling the signal over x402 |
+| `contracts/examples/X402Settler.sol` | On-chain x402 settlement relay that can only pay the configured merchant |
+| `test/` | Registry unit, fuzz and invariant tests, example contract tests, cross-language vector tests, `MockUSDG` |
+| `script/` | `DeployRegistry`, `DeployAgentSignalBoard`, `DeployX402Settler` |
+
+Deploy with `forge script script/DeployRegistry.s.sol --rpc-url <rpc> --broadcast --interactive`, then set `NEXT_PUBLIC_REGISTRY_ADDRESS_*`.
+
+## Python SDK
+
+[`sdk/python`](sdk/python) lets Python agents pay x402 resources and use the registry:
+
+```python
+from eth_account import Account
+from sherwood import TESTNET, X402Client
+
+with X402Client(Account.from_key(key), network=TESTNET, max_amount="0.05") as client:
+    result = client.get("https://your-sherwood-host/api/x402/premium")
+```
+
+It also reads and writes the registry, decodes its custom errors and events, derives agent ids and commitments exactly like the console, and ships a `sherwood` CLI. Tests cover unit behaviour, a local anvil node (registry lifecycle and an on-chain settlement of a Python-signed payment) and parity with the TypeScript verifier. See the [SDK README](sdk/python/README.md).
+
+## Cross-language test vectors
+
+`npm run vectors` hashes, commits and signs fixed inputs with the app's own TypeScript code and writes [`test/vectors/x402-vectors.json`](test/vectors/x402-vectors.json). Foundry (`test/X402Vectors.t.sol`) and the Python SDK (`sdk/python/tests/test_vectors.py`) must reproduce every value, down to the EIP-712 digest, the signature and the `X-PAYMENT` header bytes. CI runs `npm run vectors:check` so the file cannot go stale.
+
 ## Scripts
 
 | Script | Purpose |
@@ -159,12 +206,21 @@ Compiled with solc 0.8.37, `evmVersion: cancun` (PUSH0, MCOPY and TSTORE were ve
 | `npm run wallets:setup` | Create mainnet `.env.local` with facilitator and payer hot wallets |
 | `npm run e2e:mainnet` | Real on-chain run: x402 HTTP + self-settled, registry, anchor, agent lifecycle (`--check`, `--wait`) |
 | `npm run contracts:compile` | Compile the registry into `src/lib/chain/registry-artifact.ts` |
+| `npm run contracts:test` | Foundry unit, fuzz and invariant tests (`forge test`) |
+| `npm run vectors` / `vectors:check` | Regenerate or verify the cross-language test vectors |
+| `npm run sdk:test` | Python SDK tests (unit, anvil integration, TypeScript parity) |
 
 ## Project structure
 
 ```
-contracts/ZKx8004Registry.sol     # registry contract
-scripts/                          # compile, chain checks, runtime and x402 tests
+contracts/
+├── ZKx8004Registry.sol           # registry contract (deployed on mainnet)
+├── interfaces/                   # IZKx8004Registry, IERC3009
+└── examples/                     # AgentGate, AgentSignalBoard, X402Settler
+test/                             # Foundry tests, MockUSDG, cross-language vectors
+script/                           # Foundry deployment scripts
+sdk/python/                       # Python SDK, CLI, examples and tests
+scripts/                          # compile, chain checks, runtime and x402 tests, vector generator
 src/
 ├── app/
 │   ├── api/x402/                 # premium, verify, settle, supported
@@ -187,6 +243,7 @@ src/
 
 - [x] Website, console and composable runtime
 - [x] Robinhood Chain: live wallets, USDG x402, registry contract
+- [x] Foundry test suite, example integrations and a Python SDK with cross-language vectors
 - [ ] zk-SNARK circuits and an on-chain verifier
 - [ ] Contract verification on Blockscout and a mainnet registry
 - [ ] Rate-limited hosted facilitator

@@ -12,6 +12,21 @@ next-env.d.ts
 
 # testing
 coverage/
+.coverage
+coverage.xml
+htmlcov/
+
+# foundry (out/ is covered above)
+cache/
+broadcast/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+dist/
 
 # env files: keep only the template (.env.local holds facilitator and payer private keys)
 .env*

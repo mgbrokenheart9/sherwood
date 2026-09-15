@@ -40,7 +40,13 @@ const sortKeys = (keys: string[]): string[] => [...keys].sort((a, b) => a.locale
 const byteSize = (value: string): number => new TextEncoder().encode(value).length;
 const asBytes32 = (hex: string): Hex => `0x${hex}`;
 
-function canonical(inputs: Record<string, string>): Record<string, string> {
+/** Pre-images hashed into a proof's commitment and nullifier. Exported for the cross-language test vectors. */
+export const commitmentPreimage = (circuit: string, inputs: Record<string, string>, salt: string): string =>
+  `commit|${circuit}|${JSON.stringify(inputs)}|${salt}`;
+
+export const nullifierPreimage = (salt: string): string => `nullifier|${salt}`;
+
+export function canonical(inputs: Record<string, string>): Record<string, string> {
   const entries = Object.entries(inputs).map(([key, value]) => [key.trim(), value] as const);
   return Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b)));
 }
@@ -89,7 +95,7 @@ export class PrivacyContext extends BaseContext<PrivacyState> {
   }
 
   private commit(circuit: CircuitId, witness: Witness): Promise<string> {
-    return sha256Hex(`commit|${circuit}|${JSON.stringify(witness.inputs)}|${witness.salt}`);
+    return sha256Hex(commitmentPreimage(circuit, witness.inputs, witness.salt));
   }
 
   private async prove(verificationKey: string, circuit: CircuitId, statement: string): Promise<string> {
@@ -108,7 +114,7 @@ export class PrivacyContext extends BaseContext<PrivacyState> {
       statement: request.statement,
       proof: await this.prove(verificationKey, request.circuit, request.statement),
       verificationKey,
-      nullifier: await sha256Hex(`nullifier|${witness.salt}`),
+      nullifier: await sha256Hex(nullifierPreimage(witness.salt)),
       publicInputs: Object.keys(witness.inputs),
       witness: await this.vault.seal(JSON.stringify(witness)),
       verified: null,

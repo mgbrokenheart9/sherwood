@@ -1,0 +1,44 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+
+# next.js
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# testing
+coverage/
+
+# env files: keep only the template (.env.local holds facilitator and payer private keys)
+.env*
+!.env.example
+
+# secrets
+*.pem
+*.key
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# editor / os
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+desktop.ini
+*.sw?
+
+# local tooling
+.claude/settings.local.json
+
+# deploy
+.vercel

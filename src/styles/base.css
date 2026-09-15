@@ -1,0 +1,409 @@
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+  --bg: #07110d;
+  --ink: #eef5ef;
+  --ink-soft: #e3ede4;
+  --muted: #93a499;
+  --faint: #647268;
+  --line: #ffffff1a;
+  --line-strong: #ffffff2b;
+  --bone: #0f1c16;
+  --bone-line: #ffffff17;
+  --dark: #07110d;
+  --dark-ink: #eef5ef;
+  --dark-muted: #93a499;
+  --dark-faint: #647268;
+  --dark-line: #ffffff1a;
+  --accent: #b5e37f;
+  --success: #9fe3b0;
+  --danger: #e8bba8;
+
+  /* Sherwood greens, from forest floor to new leaf */
+  --pine: #0f3d2e;
+  --fern: #2f8f5b;
+  --moss: #7cc48a;
+  --lichen: #d7eea6;
+  --on-leaf: #04140d;
+  --grad-leaf: linear-gradient(115deg, var(--lichen) 0%, var(--moss) 48%, #2fa37a 100%);
+  --grad-leaf-hover: linear-gradient(115deg, #e6f5bf 0%, #93d49e 48%, #3bb488 100%);
+  --grad-canopy:
+    radial-gradient(70% 60% at 18% 0%, #2f8f5b38 0%, #0000 70%),
+    radial-gradient(50% 45% at 92% 10%, #7cc48a1f 0%, #0000 70%);
+
+  --font-sans: var(--font-geist), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --dur-quick: 0.15s;
+  --dur-fast: 0.25s;
+  --dur-med: 0.35s;
+  --dur-slow: 0.4s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  --maxw: 1360px;
+  --pad: clamp(20px, 5.5vw, 84px);
+  --radius: 14px;
+
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  zoom: 0.9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--moss);
+  color: var(--on-leaf);
+}
+
+:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+:where([id]) {
+  scroll-margin-top: 92px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+/* ==========================================================================
+   Layout primitives
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  padding-inline: var(--pad);
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: clamp(60px, 8vw, 116px);
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85em;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.eyebrow--dot::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--ink);
+}
+
+.display {
+  font-size: clamp(2.25rem, 4.8vw, 4.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.headline {
+  font-size: clamp(1.65rem, 3.7vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.statement {
+  font-size: clamp(1.7rem, 3.7vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 44ch;
+  font-size: clamp(0.95rem, 1.05vw, 1.1rem);
+  line-height: 1.55;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.subhead {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.metaline {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ==========================================================================
+   Buttons (magnetic surface + echo arrow)
+   ========================================================================== */
+
+.btn {
+  --btn-fg: var(--ink);
+  --btn-bg: transparent;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  height: 44px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--btn-fg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.btn__surface {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--btn-bg);
+  pointer-events: none;
+  transition:
+    background-color var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+}
+
+.btn__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+
+.btn__icon {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.btn__arrow {
+  display: grid;
+  grid-area: 1 / 1;
+  place-items: center;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.btn__arrow--echo {
+  transform: translateY(-130%);
+}
+
+.btn__icon--upright .btn__arrow--echo {
+  transform: translate(-130%, 130%);
+}
+
+.btn--solid {
+  --btn-fg: var(--on-leaf);
+  --btn-bg: var(--grad-leaf);
+}
+
+.btn--solid:hover {
+  --btn-bg: var(--grad-leaf-hover);
+}
+
+.btn--ghost .btn__surface {
+  border: 1px solid var(--line-strong);
+}
+
+.btn--on-dark.btn--solid {
+  --btn-fg: var(--on-leaf);
+  --btn-bg: var(--grad-leaf);
+}
+
+.btn--on-dark.btn--solid:hover {
+  --btn-bg: var(--grad-leaf-hover);
+}
+
+.btn--on-dark.btn--ghost {
+  --btn-fg: var(--dark-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--ghost:hover .btn__surface {
+    border-color: var(--moss);
+    background: #7cc48a14;
+  }
+
+  .btn:hover .btn__arrow {
+    transform: translateY(130%);
+  }
+
+  .btn:hover .btn__arrow--echo {
+    transform: translateY(0);
+  }
+
+  .btn:hover .btn__icon--upright .btn__arrow {
+    transform: translate(130%, -130%);
+  }
+
+  .btn:hover .btn__icon--upright .btn__arrow--echo {
+    transform: translate(0);
+  }
+}
+
+@media (hover: none) {
+  .btn--solid:hover {
+    --btn-bg: var(--grad-leaf);
+  }
+}
+
+/* ==========================================================================
+   Icon swap
+   ========================================================================== */
+
+.t-icon-swap {
+  position: relative;
+  display: inline-grid;
+}
+
+.t-icon-swap .t-icon {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+  opacity: 0;
+  filter: blur(2px);
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .reveal,
+  .mask-reveal__line,
+  .hero__lede,
+  .hero__actions {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .btn__arrow--echo {
+    visibility: hidden;
+  }
+}

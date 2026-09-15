@@ -193,7 +193,6 @@ src/
 
 ## Links
 
-- GitHub: [polurber/ZKx8004](https://github.com/polurber/ZKx8004) · X: [@zkx8004](https://x.com/zkx8004) · Discord: [discord.gg/zkx8004](https://discord.gg/zkx8004)
 - Robinhood Chain docs: [docs.robinhood.com/chain](https://docs.robinhood.com/chain)
 
 ## License

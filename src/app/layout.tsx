@@ -20,8 +20,27 @@ const geistMono = localFont({
   display: "swap",
 });
 
+/**
+ * Absolute origin for Open Graph and Twitter image URLs. An empty or malformed NEXT_PUBLIC_SITE_URL
+ * (common when the variable is added to a host without a value) falls back to the deployment URL
+ * Vercel provides, then to localhost, instead of failing the build.
+ */
+function siteUrl(): URL {
+  const candidates = [process.env.NEXT_PUBLIC_SITE_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL];
+  for (const candidate of candidates) {
+    const value = candidate?.trim();
+    if (!value) continue;
+    try {
+      return new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`);
+    } catch {
+      // Malformed value: try the next source.
+    }
+  }
+  return new URL("http://localhost:3000");
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: siteUrl(),
   title: SITE.title,
   description: SITE.description,
   applicationName: SITE.name,

@@ -162,12 +162,22 @@ export class PaymentContext extends BaseContext<PaymentState> {
     };
   }
 
-  private async assertLiveFunds(live: LiveChain, address: Address, currency: Currency, amount: number): Promise<void> {
+  /**
+   * Checks the wallet can cover an amount. Gas is only required when the wallet
+   * submits the transaction itself; a facilitator-settled x402 payment needs none.
+   */
+  private async assertLiveFunds(
+    live: LiveChain,
+    address: Address,
+    currency: Currency,
+    amount: number,
+    { paysGas = true } = {},
+  ): Promise<void> {
     const balances = this.storeBalances(address, await live.balances());
     if (balances[currency] < amount) {
       throw new Error(`Insufficient ${currency} on ${this.blockchain.activeNetwork.name}: ${formatAmount(balances[currency], currency, 6)} available.`);
     }
-    if (balances.ETH <= 0) throw new Error("This wallet has no ETH for gas. Use a Robinhood Chain faucet first.");
+    if (paysGas && balances.ETH <= 0) throw new Error("This wallet has no ETH for gas. Use a Robinhood Chain faucet first.");
   }
 
   /* ------------------------------------------------------------ payments */
@@ -304,7 +314,8 @@ export class PaymentContext extends BaseContext<PaymentState> {
 
     const amount = Number(formatUnits(BigInt(requirements.maxAmountRequired), requirements.extra.decimals));
     step(`402 Payment Required · ${amount} USDG to ${shorten(requirements.payTo)}`);
-    await this.assertLiveFunds(live, wallet.address, "USDG", amount);
+    // The server facilitator submits the settlement, so the buyer pays no gas.
+    await this.assertLiveFunds(live, wallet.address, "USDG", amount, { paysGas: false });
 
     const authorization = createAuthorization({
       from: wallet.address,

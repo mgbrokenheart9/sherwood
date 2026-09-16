@@ -6,7 +6,7 @@
  */
 
 import "./lib/load-env";
-import { ACTIVE_NETWORK } from "@/lib/chain/config";
+import { ACTIVE_NETWORK, registryEnvName } from "@/lib/chain/config";
 import { ActionValidationError } from "@/lib/runtime/actions";
 import { RUNTIME_TUNING } from "@/lib/runtime/catalog";
 import { randomAddress } from "@/lib/runtime/crypto";
@@ -90,7 +90,12 @@ async function main(): Promise<void> {
   /* blockchain & registry */
   const networks = await runtime.execute("refreshNetworks", {});
   check(networks.length === 2 && networks.every((network) => network.name.startsWith("Robinhood")), "both Robinhood Chain networks are reported");
-  await rejects(runtime.execute("anchorProof", { proofId: proof.id }), /registry first/, "anchoring needs a registry");
+  // A preconfigured registry is imported on start-up, so there is nothing to reject.
+  if (ACTIVE_NETWORK.registry) {
+    console.log(`· skipped "anchoring needs a registry" — ${registryEnvName(ACTIVE_NETWORK)} is set`);
+  } else {
+    await rejects(runtime.execute("anchorProof", { proofId: proof.id }), /registry first/, "anchoring needs a registry");
+  }
 
   const registry = await runtime.execute("deployRegistry", {});
   check(/^0x[0-9a-fA-F]{40}$/.test(registry.address) && registry.tx?.hash, "registry deployment returns an address and transaction");
@@ -169,7 +174,13 @@ async function main(): Promise<void> {
 
   await runtime.execute("resetRuntime", {});
   const cleared = runtime.getSnapshot();
-  check(!cleared.wallet.wallet && cleared.privacy.proofs.length === 0 && !cleared.blockchain.registries[ACTIVE_NETWORK.id], "reset clears every context");
+  // Reset drops user state; a registry supplied by the environment is configuration and returns.
+  check(
+    !cleared.wallet.wallet &&
+      cleared.privacy.proofs.length === 0 &&
+      cleared.blockchain.registries[ACTIVE_NETWORK.id]?.address === ACTIVE_NETWORK.registry,
+    "reset clears user state and keeps configured registries",
+  );
 
   console.log(`\nAll ${passed} runtime checks passed.`);
 }

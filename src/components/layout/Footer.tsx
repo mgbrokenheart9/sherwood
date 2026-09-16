@@ -28,7 +28,7 @@ export function Footer() {
 
       <div className="footer__meta">
         <span className="metaline">© {new Date().getFullYear()} {SITE.name} · Powered by {SITE.protocol}</span>
-        <span className="metaline">MIT License · {IS_MAINNET ? "Live on Robinhood Chain mainnet" : "Built on Robinhood Chain"}</span>
+        <span className="metaline">MIT License · {IS_MAINNET ? "Live on Robinhood Chain mainnet" : "Robinhood Chain testnet · test funds only"}</span>
       </div>
     </footer>
   );

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { bootPrepaintScript } from "@/components/boot/prepaint";
 import { BrandGradient } from "@/components/brand/BrandMark";
+import { IS_MAINNET } from "@/content/deployment";
 import { SITE } from "@/content/site";
 import "./globals.css";
 
@@ -44,6 +45,8 @@ export const metadata: Metadata = {
   title: SITE.title,
   description: SITE.description,
   applicationName: SITE.name,
+  // The testnet subdomain mirrors the main site, so keep it out of search results.
+  robots: IS_MAINNET ? undefined : { index: false, follow: false, googleBot: { index: false, follow: false } },
   keywords: ["Sherwood", "ZKx8004", "zero-knowledge", "x402", "Robinhood Chain", "EVM", "EIP-3009", "USDG", "private agents", "autonomous agents"],
   openGraph: {
     type: "website",

@@ -2,10 +2,11 @@
 
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { useRuntimeState } from "@/components/console/runtime-provider";
+import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MaskReveal } from "@/components/ui/MaskReveal";
 import { Reveal } from "@/components/ui/Reveal";
-import { DEPLOYMENT, IS_MAINNET, type DeploymentFact } from "@/content/deployment";
+import { DEPLOYMENT, NETWORK_SWITCH, type DeploymentFact } from "@/content/deployment";
 import { ACTIVE_NETWORK } from "@/lib/chain/config";
 import { cx } from "@/lib/cn";
 import { formatNumber } from "@/lib/format";
@@ -23,13 +24,13 @@ function Fact({ fact }: { fact: DeploymentFact }) {
     <article className="fact">
       <span className="metaline">{fact.label}</span>
       <span className={cx("fact__value", fact.mono && "fact__value--mono")}>
-        {fact.live && <span className="status-dot" aria-hidden="true" />}
+        {fact.live && <span className={cx("status-dot", ACTIVE_NETWORK.testnet && "status-dot--test")} aria-hidden="true" />}
         {value}
       </span>
       <p className="fact__note">{fact.note}</p>
       {fact.href && (
         <a className="fact__link" href={fact.href} target="_blank" rel="noopener noreferrer">
-          View on explorer
+          {fact.linkLabel ?? "View on explorer"}
           <ArrowUpRight size={13} weight="bold" aria-hidden="true" />
         </a>
       )}
@@ -37,19 +38,17 @@ function Fact({ fact }: { fact: DeploymentFact }) {
   );
 }
 
-/** Verifiable proof that Sherwood is live on Robinhood Chain mainnet. Hidden on testnet builds. */
-export function MainnetProof() {
-  if (!IS_MAINNET) return null;
-
+/** Verifiable facts about the network this build runs on, with a link to the sibling deployment. */
+export function NetworkProof() {
   return (
-    <section className="mainnet container" id="mainnet">
+    <section className="network-proof container" id="network">
       <Reveal>
-        <Eyebrow dot className="mainnet__eyebrow">
+        <Eyebrow dot className="network-proof__eyebrow">
           {DEPLOYMENT.eyebrow}
         </Eyebrow>
       </Reveal>
 
-      <div className="statement-head mainnet__head">
+      <div className="statement-head network-proof__head">
         <MaskReveal as="h2" className="statement" delay={0.05}>
           {DEPLOYMENT.title}
         </MaskReveal>
@@ -58,13 +57,24 @@ export function MainnetProof() {
         </Reveal>
       </div>
 
-      <div className="mainnet__grid">
+      <div className="network-proof__grid">
         {DEPLOYMENT.facts.map((fact, index) => (
           <Reveal key={fact.label} delay={index * 0.06}>
             <Fact fact={fact} />
           </Reveal>
         ))}
       </div>
+
+      {NETWORK_SWITCH.url && (
+        <Reveal delay={0.2}>
+          <div className="network-proof__switch">
+            <Button variant="ghost" href={NETWORK_SWITCH.url} icon={<ArrowUpRight size={16} weight="bold" />} iconDir="upright">
+              {NETWORK_SWITCH.cta}
+            </Button>
+            <span className="metaline">{NETWORK_SWITCH.note}</span>
+          </div>
+        </Reveal>
+      )}
     </section>
   );
 }

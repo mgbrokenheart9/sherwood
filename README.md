@@ -97,6 +97,45 @@ The full run above succeeded on Robinhood Chain mainnet (8/8 steps, ~0.0000736 E
 
 Registry: [`0x3c72695fdd4bf09ab378d993832e6d15d628291f`](https://robinhoodchain.blockscout.com/address/0x3c72695fdd4bf09ab378d993832e6d15d628291f). Re-check any time with `npm run chain:receipts -- <txHash> --code <address>`.
 
+## Deployments: mainnet and testnet subdomain
+
+The network is inlined at build time, so mainnet and testnet are two deployments of the same repository and branch. Pushing to `main` updates both.
+
+| | Mainnet (main domain) | Testnet (subdomain) |
+| --- | --- | --- |
+| Example URL | `https://sherwood.example` | `https://testnet.sherwood.example` |
+| `NEXT_PUBLIC_ROBINHOOD_NETWORK` | `mainnet` | `testnet` |
+| `NEXT_PUBLIC_SITE_URL` | main domain | testnet subdomain |
+| `NEXT_PUBLIC_MAINNET_URL` / `NEXT_PUBLIC_TESTNET_URL` | both URLs | both URLs |
+| `NEXT_PUBLIC_REGISTRY_ADDRESS_*` | `_MAINNET` | `_TESTNET` (optional) |
+| `X402_FACILITATOR_PRIVATE_KEY` | mainnet relayer | **separate** testnet relayer |
+| Search engines | indexed | `noindex` (automatic) |
+
+What changes automatically in a testnet build: an amber "Robinhood Chain testnet · test funds only" status, a "Try it on testnet" section with faucet links instead of the mainnet facts, the tab title "Sherwood Testnet", and `noindex` metadata. Both sites link to each other once both URLs are set.
+
+**Vercel setup**
+
+1. Keep the existing project as mainnet.
+2. *Add New → Project* → import the same GitHub repository again, named for example `sherwood-testnet`.
+3. In the testnet project, set the variables from the table above for *Production*, then deploy.
+4. *Settings → Domains* → add `testnet.<your-domain>`.
+5. At your DNS provider, add `CNAME testnet → cname.vercel-dns.com` (Vercel shows the exact record).
+6. In **both** projects, set `NEXT_PUBLIC_MAINNET_URL` and `NEXT_PUBLIC_TESTNET_URL`, then redeploy so the switch links appear.
+
+**Local testnet build**
+
+```bash
+# bash
+NEXT_PUBLIC_ROBINHOOD_NETWORK=testnet npm run build && npm start -- -p 3200
+```
+
+```powershell
+# PowerShell
+$env:NEXT_PUBLIC_ROBINHOOD_NETWORK = "testnet"; npm run build; npm start -- -p 3200
+```
+
+`npm run e2e:testnet` runs the on-chain end-to-end flow on testnet (it writes `NEXT_PUBLIC_REGISTRY_ADDRESS_TESTNET` to `.env.local`). Pass `--testnet` to other scripts, for example `npm run chain:receipts -- <hash> --testnet`.
+
 ## Environment variables
 
 | Variable | Scope | Purpose |
@@ -107,6 +146,7 @@ Registry: [`0x3c72695fdd4bf09ab378d993832e6d15d628291f`](https://robinhoodchain.
 | `NEXT_PUBLIC_REGISTRY_ADDRESS_TESTNET` / `_MAINNET` | public | Pre-deployed registry addresses |
 | `NEXT_PUBLIC_TREASURY_ADDRESS` | public | Receives protocol fees in live mode; fees are skipped when empty |
 | `NEXT_PUBLIC_SITE_URL` | public | Open Graph base URL |
+| `NEXT_PUBLIC_MAINNET_URL` / `NEXT_PUBLIC_TESTNET_URL` | public | Sibling deployment URLs for the Mainnet ↔ Testnet switch (hidden while empty) |
 | `X402_FACILITATOR_PRIVATE_KEY` | **server** | Relayer that settles `transferWithAuthorization` and pays gas |
 | `X402_PAY_TO` | server | Merchant address for x402 payments (defaults to the relayer) |
 | `X402_PRICE_USDG` | server | Price of `/api/x402/premium` (default `0.01`) |

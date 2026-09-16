@@ -11,7 +11,7 @@ import { ConsoleSection } from "@/components/sections/ConsoleSection";
 import { Feature, FeatureWindow } from "@/components/sections/Feature";
 import { Hero } from "@/components/sections/Hero";
 import { HowItWorks } from "@/components/sections/HowItWorks";
-import { MainnetProof } from "@/components/sections/MainnetProof";
+import { NetworkProof } from "@/components/sections/NetworkProof";
 import { Modules } from "@/components/sections/Modules";
 import { QuickStart } from "@/components/sections/QuickStart";
 import { Statement } from "@/components/sections/Statement";
@@ -39,7 +39,7 @@ export default function HomePage() {
           </div>
 
           <Modules />
-          <MainnetProof />
+          <NetworkProof />
           <Statement />
 
           <Feature

@@ -3,7 +3,7 @@
  */
 
 import { ACTIVE_NETWORK } from "@/lib/chain/config";
-import { IS_MAINNET, NETWORK_LABEL } from "./deployment";
+import { IS_MAINNET, NETWORK_LABEL, NETWORK_SWITCH } from "./deployment";
 
 export const LINKS = {
   github: "https://github.com/polurber/ZKx8004",
@@ -21,9 +21,9 @@ const VIEM_CHAIN = ACTIVE_NETWORK.testnet ? "robinhoodTestnet" : "robinhood";
 export const SITE = {
   name: "Sherwood",
   protocol: "ZKx8004",
-  title: "Sherwood · Private agents. Zero knowledge.",
+  title: IS_MAINNET ? "Sherwood · Private agents. Zero knowledge." : "Sherwood Testnet · Private agents. Zero knowledge.",
   description:
-    `Deploy autonomous private agents with zero-knowledge proofs and x402 USDG payments on Robinhood Chain. Prove, pay and transact without exposing strategies, balances or counterparties.${IS_MAINNET ? " Live on Robinhood Chain mainnet." : ""}`,
+    `Deploy autonomous private agents with zero-knowledge proofs and x402 USDG payments on Robinhood Chain. Prove, pay and transact without exposing strategies, balances or counterparties.${IS_MAINNET ? " Live on Robinhood Chain mainnet." : " Testnet playground with free test funds."}`,
 } as const;
 
 export const NAV_LINKS = [
@@ -225,6 +225,7 @@ export const FOOTER_LINKS = [
   { label: "Discord", href: LINKS.discord },
   { label: "Docs", href: LINKS.docs },
   { label: "Robinhood Chain", href: LINKS.chainDocs },
-] as const;
+  ...(NETWORK_SWITCH.url ? [{ label: NETWORK_SWITCH.label, href: NETWORK_SWITCH.url }] : []),
+];
 
 export const isExternal = (href: string): boolean => /^(https?:|mailto:)/.test(href);

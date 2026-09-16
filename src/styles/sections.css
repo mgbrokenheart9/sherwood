@@ -461,24 +461,24 @@
 }
 
 /* ==========================================================================
-   Mainnet proof
+   Network proof
    ========================================================================== */
 
-.mainnet {
+.network-proof {
   border-top: 1px solid var(--line);
   padding-block: clamp(60px, 8vw, 116px);
 }
 
-.mainnet__eyebrow {
+.network-proof__eyebrow {
   display: flex;
   margin-bottom: clamp(18px, 2.2vw, 26px);
 }
 
-.mainnet__head {
+.network-proof__head {
   margin-bottom: clamp(40px, 5vw, 72px);
 }
 
-.mainnet__grid {
+.network-proof__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(20px, 2.4vw, 32px);
@@ -536,13 +536,13 @@
 }
 
 @media (max-width: 1000px) {
-  .mainnet__grid {
+  .network-proof__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 560px) {
-  .mainnet__grid {
+  .network-proof__grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1151,4 +1151,21 @@
 
 .standalone .lede {
   max-width: 48ch;
+}
+
+.network-proof__switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: clamp(32px, 4vw, 52px);
+}
+
+/* Amber status dot for testnet builds. */
+.status-dot--test {
+  background: #f5c46b;
+}
+
+.status-dot--test::after {
+  border-color: #f5c46b80;
 }

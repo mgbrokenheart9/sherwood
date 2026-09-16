@@ -1,15 +1,32 @@
 /**
- * Deployment facts shown on the landing page.
+ * Network facts shown on the landing page.
  *
- * Mainnet claims only render when the app is built for mainnet, and every
- * value links to the explorer. Milestones were verified on-chain with
- * `npm run chain:receipts`.
+ * Sherwood ships as two deployments of the same code: mainnet on the main
+ * domain and testnet on a subdomain. The network is chosen at build time and
+ * every claim here follows it, so a testnet build never says "mainnet".
+ * Mainnet milestones were verified on-chain with `npm run chain:receipts`.
  */
 
 import { ACTIVE_NETWORK, explorerAddress, explorerTx } from "@/lib/chain/config";
 
 export const IS_MAINNET = !ACTIVE_NETWORK.testnet;
 export const NETWORK_LABEL = IS_MAINNET ? "Robinhood Chain mainnet" : "Robinhood Chain testnet";
+
+/** Normalises a public site URL to its origin; empty or malformed values are ignored. */
+function siteOrigin(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  try {
+    return new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The sibling deployment on the other network, linked only when its URL is configured. */
+export const NETWORK_SWITCH = IS_MAINNET
+  ? { label: "Testnet", cta: "Try the testnet", note: "Same product · test funds only", url: siteOrigin(process.env.NEXT_PUBLIC_TESTNET_URL) }
+  : { label: "Mainnet", cta: "Go to mainnet", note: `Real funds · chain 4663`, url: siteOrigin(process.env.NEXT_PUBLIC_MAINNET_URL) };
 
 const MAINNET_MILESTONES = {
   registry: "0x3c72695fdd4bf09ab378d993832e6d15d628291f",
@@ -25,6 +42,7 @@ export interface DeploymentFact {
   value: string;
   note: string;
   href?: string;
+  linkLabel?: string;
   mono?: boolean;
   live?: boolean;
 }
@@ -62,9 +80,57 @@ function mainnetFacts(): DeploymentFact[] {
   ];
 }
 
-export const DEPLOYMENT = {
-  eyebrow: `Mainnet · chain ${ACTIVE_NETWORK.chainId}`,
-  title: "Live on Robinhood Chain.",
-  lede: "Sherwood runs on mainnet today. The registry is deployed and x402 payments settle in USDG on-chain. Every fact below links to the explorer, so you can check it yourself.",
-  facts: IS_MAINNET ? mainnetFacts() : [],
-} as const;
+function testnetFacts(): DeploymentFact[] {
+  const registry = ACTIVE_NETWORK.registry;
+  const [faucet] = ACTIVE_NETWORK.faucets;
+
+  return [
+    {
+      label: "Network",
+      value: "Robinhood Chain Testnet",
+      note: `Chain ID ${ACTIVE_NETWORK.chainId} · test ETH and USDG have no value`,
+      href: ACTIVE_NETWORK.explorerUrl,
+    },
+    {
+      label: "Latest block",
+      value: "Live",
+      note: "Read from testnet RPC every 4 seconds",
+      mono: true,
+      live: true,
+    },
+    registry
+      ? {
+          label: "Registry contract",
+          value: shortHex(registry),
+          note: "Testnet registry for proofs and agents",
+          href: explorerAddress(ACTIVE_NETWORK, registry),
+          mono: true,
+        }
+      : {
+          label: "Registry contract",
+          value: "Deploy your own",
+          note: "Connect a wallet and deploy it from the console's Blockchain tab",
+        },
+    {
+      label: "Test funds",
+      value: "Free faucets",
+      note: ACTIVE_NETWORK.faucets.map((item) => item.label.replace(/ faucet/i, "")).join(" · "),
+      href: faucet?.url,
+      linkLabel: "Open faucet",
+    },
+  ];
+}
+
+export const DEPLOYMENT = IS_MAINNET
+  ? {
+      eyebrow: `Mainnet · chain ${ACTIVE_NETWORK.chainId}`,
+      title: "Live on Robinhood Chain.",
+      lede: "Sherwood runs on mainnet today. The registry is deployed and x402 payments settle in USDG on-chain. Every fact below links to the explorer, so you can check it yourself.",
+      facts: mainnetFacts(),
+    }
+  : {
+      eyebrow: `Testnet · chain ${ACTIVE_NETWORK.chainId}`,
+      title: "Try it on testnet.",
+      lede: "This is the Sherwood testnet playground. Everything runs on Robinhood Chain Testnet with test ETH and USDG that have no real value, so you can deploy agents, anchor proofs and send x402 payments freely.",
+      facts: testnetFacts(),
+    };

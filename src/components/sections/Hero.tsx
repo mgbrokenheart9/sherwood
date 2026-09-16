@@ -9,20 +9,21 @@ import { MaskReveal } from "@/components/ui/MaskReveal";
 import { IS_MAINNET, NETWORK_LABEL } from "@/content/deployment";
 import { HERO, LINKS } from "@/content/site";
 import { ACTIVE_NETWORK } from "@/lib/chain/config";
+import { cx } from "@/lib/cn";
 import { formatNumber } from "@/lib/format";
 import { Harness } from "./Harness";
 
 const fadeDelay = (seconds: number) => ({ "--fade-delay": `${seconds}s` }) as CSSProperties;
 
-/** "Live on Robinhood Chain mainnet" with the latest block read from RPC. */
+/** Network status with the latest block read from RPC: green on mainnet, amber on testnet. */
 function NetworkStatus() {
   const network = useRuntimeState((snapshot) => snapshot.blockchain.networks.find((item) => item.id === ACTIVE_NETWORK.id));
   const block = network?.source === "rpc" ? network.blockNumber : undefined;
 
   return (
-    <a className="hero__status hero__fade" href="#mainnet" style={fadeDelay(0)}>
-      <span className="status-dot" aria-hidden="true" />
-      <span>Live on {NETWORK_LABEL}</span>
+    <a className="hero__status hero__fade" href="#network" style={fadeDelay(0)}>
+      <span className={cx("status-dot", !IS_MAINNET && "status-dot--test")} aria-hidden="true" />
+      <span>{IS_MAINNET ? `Live on ${NETWORK_LABEL}` : `${NETWORK_LABEL} · test funds only`}</span>
       {block ? <span className="hero__status-block">#{formatNumber(block)}</span> : null}
     </a>
   );
@@ -35,7 +36,7 @@ export function Hero() {
     <section className="hero" id="top" data-ready={ready}>
       <div className="hero__inner container">
         <div className="hero__copy">
-          {IS_MAINNET && <NetworkStatus />}
+          <NetworkStatus />
 
           <MaskReveal as="h1" className="display hero__title" trigger="load" delay={0.05} stagger={0.09} lines={HERO.lines} />
 

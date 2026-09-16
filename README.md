@@ -104,6 +104,7 @@ The network is inlined at build time, so mainnet and testnet are two deployments
 | | Mainnet (main domain) | Testnet (subdomain) |
 | --- | --- | --- |
 | Example URL | `https://sherwood.example` | `https://testnet.sherwood.example` |
+| Without a custom domain | `https://<project>.vercel.app` | `https://<project>-testnet.vercel.app` |
 | `NEXT_PUBLIC_ROBINHOOD_NETWORK` | `mainnet` | `testnet` |
 | `NEXT_PUBLIC_SITE_URL` | main domain | testnet subdomain |
 | `NEXT_PUBLIC_MAINNET_URL` / `NEXT_PUBLIC_TESTNET_URL` | both URLs | both URLs |
@@ -121,6 +122,8 @@ What changes automatically in a testnet build: an amber "Robinhood Chain testnet
 4. *Settings → Domains* → add `testnet.<your-domain>`.
 5. At your DNS provider, add `CNAME testnet → cname.vercel-dns.com` (Vercel shows the exact record).
 6. In **both** projects, set `NEXT_PUBLIC_MAINNET_URL` and `NEXT_PUBLIC_TESTNET_URL`, then redeploy so the switch links appear.
+
+No custom domain yet? Skip steps 4 and 5 and use the free `*.vercel.app` URL each project already has, for example `sherwood.vercel.app` and `sherwood-testnet.vercel.app`. `NEXT_PUBLIC_SITE_URL` may stay empty (the Vercel production URL is used), but still set both switch URLs. Moving to a real domain later only means adding the domain in Vercel and updating those two variables.
 
 **Local testnet build**
 

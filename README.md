@@ -125,6 +125,16 @@ What changes automatically in a testnet build: an amber "Robinhood Chain testnet
 
 No custom domain yet? Skip steps 4 and 5 and use the free `*.vercel.app` URL each project already has, for example `sherwood.vercel.app` and `sherwood-testnet.vercel.app`. `NEXT_PUBLIC_SITE_URL` may stay empty (the Vercel production URL is used), but still set both switch URLs. Moving to a real domain later only means adding the domain in Vercel and updating those two variables.
 
+**The testnet facilitator wallet**
+
+The testnet deployment needs its own relayer key; never reuse the mainnet one.
+
+```bash
+npm run wallets:new          # writes .env.testnet (git-ignored) and prints only the address
+```
+
+Copy `X402_FACILITATOR_PRIVATE_KEY` and `X402_PAY_TO` from that file into the testnet project's environment variables, fund the address with a little test ETH from a [faucet](https://faucets.chain.link/robinhood-testnet), then delete the file. A fresh account exported from MetaMask or Rabby works just as well. The relayer only pays gas and only settles payments to the configured merchant, so it never needs to hold USDG.
+
 **Local testnet build**
 
 ```bash
@@ -247,6 +257,7 @@ It also reads and writes the registry, decodes its custom errors and events, der
 | `npm run chain:receipts` | Re-check transactions (status, fees, USDG transfers) and contract code on the active network |
 | `npm run test:server` | HTTP checks of `/api/x402/*` against a running app (no funds needed) |
 | `npm run wallets:setup` | Create mainnet `.env.local` with facilitator and payer hot wallets |
+| `npm run wallets:new` | Generate one hot wallet into a git-ignored `.env*` file (key never printed) |
 | `npm run e2e:mainnet` | Real on-chain run: x402 HTTP + self-settled, registry, anchor, agent lifecycle (`--check`, `--wait`) |
 | `npm run contracts:compile` | Compile the registry into `src/lib/chain/registry-artifact.ts` |
 | `npm run contracts:test` | Foundry unit, fuzz and invariant tests (`forge test`) |

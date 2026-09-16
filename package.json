@@ -15,6 +15,7 @@
     "chain:check": "tsx scripts/check-chain.ts",
     "chain:receipts": "tsx scripts/verify-receipts.ts",
     "wallets:setup": "tsx scripts/setup-wallets.ts",
+    "wallets:new": "tsx scripts/new-wallet.ts",
     "e2e:mainnet": "tsx scripts/e2e-onchain.ts",
     "e2e:testnet": "tsx scripts/e2e-onchain.ts --testnet",
     "vectors": "tsx scripts/generate-vectors.ts",

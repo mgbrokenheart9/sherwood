@@ -1,10 +1,10 @@
-import { ArrowDown, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowDown } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/Button";
 import { CodeBlock, CopyCommand } from "@/components/ui/CopyCommand";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MaskReveal } from "@/components/ui/MaskReveal";
 import { Reveal } from "@/components/ui/Reveal";
-import { INSTALL_COMMAND, LINKS, QUICK_START } from "@/content/site";
+import { INSTALL_COMMAND, QUICK_START } from "@/content/site";
 
 export function QuickStart() {
   return (
@@ -27,9 +27,6 @@ export function QuickStart() {
         <div className="quickstart__actions">
           <Button magnetic variant="solid" href="#console" icon={<ArrowDown size={16} weight="bold" />} iconDir="down">
             Launch console
-          </Button>
-          <Button variant="ghost" href={LINKS.docs} icon={<ArrowUpRight size={16} weight="bold" />} iconDir="upright">
-            Read the docs
           </Button>
           <span className="metaline">{QUICK_START.meta}</span>
         </div>

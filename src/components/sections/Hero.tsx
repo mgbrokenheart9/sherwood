@@ -1,13 +1,13 @@
 "use client";
 
-import { ArrowDown, ArrowUpRight, Check, Copy } from "@phosphor-icons/react/dist/ssr";
+import { ArrowDown, Check, Copy } from "@phosphor-icons/react/dist/ssr";
 import { useState, type CSSProperties } from "react";
 import { useBoot } from "@/components/boot/boot-context";
 import { useRuntimeState } from "@/components/console/runtime-provider";
 import { Button } from "@/components/ui/Button";
 import { MaskReveal } from "@/components/ui/MaskReveal";
 import { IS_MAINNET, NETWORK_LABEL } from "@/content/deployment";
-import { HERO, INSTALL_COMMAND, LINKS } from "@/content/site";
+import { HERO, INSTALL_COMMAND } from "@/content/site";
 import { ACTIVE_NETWORK } from "@/lib/chain/config";
 import { cx } from "@/lib/cn";
 import { formatNumber } from "@/lib/format";
@@ -118,9 +118,6 @@ export function Hero() {
           <div className="hero__actions hero__fade" style={fadeDelay(0.32)}>
             <Button magnetic variant="solid" href="#console" icon={<ArrowDown size={16} weight="bold" />} iconDir="down">
               Launch console
-            </Button>
-            <Button magnetic variant="ghost" href={LINKS.github} icon={<ArrowUpRight size={16} weight="bold" />} iconDir="upright">
-              Star on GitHub
             </Button>
             <QuickInstallChip />
           </div>

@@ -6,9 +6,7 @@ import { ACTIVE_NETWORK } from "@/lib/chain/config";
 import { IS_MAINNET, NETWORK_LABEL, NETWORK_SWITCH } from "./deployment";
 
 export const LINKS = {
-  github: "https://github.com/polurber/ZKx8004",
-  docs: "https://github.com/polurber/ZKx8004#readme",
-  x: "https://x.com/sherwoodpay",
+  x: "https://x.com/sherwoodpay?s=11",
   discord: "https://discord.gg/zkx8004",
   email: "mailto:support@zkx8004.com",
   chainDocs: "https://docs.robinhood.com/chain",
@@ -30,7 +28,6 @@ export const NAV_LINKS = [
   { label: "Product", href: "#product" },
   { label: "Console", href: "#console" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "GitHub", href: LINKS.github },
 ] as const;
 
 export const HERO = {
@@ -220,10 +217,8 @@ const paid = await fetch('/api/x402/premium', { headers: { 'X-PAYMENT': encodePa
 } as const;
 
 export const FOOTER_LINKS = [
-  { label: "GitHub", href: LINKS.github },
   { label: "X", href: LINKS.x },
   { label: "Discord", href: LINKS.discord },
-  { label: "Docs", href: LINKS.docs },
   { label: "Robinhood Chain", href: LINKS.chainDocs },
   ...(NETWORK_SWITCH.url ? [{ label: NETWORK_SWITCH.label, href: NETWORK_SWITCH.url }] : []),
 ];

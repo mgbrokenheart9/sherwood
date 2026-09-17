@@ -45,6 +45,8 @@ export const metadata: Metadata = {
   title: SITE.title,
   description: SITE.description,
   applicationName: SITE.name,
+  // The platform keeps older hosts alive, so name the one address search engines should keep.
+  alternates: { canonical: "/" },
   // The testnet subdomain mirrors the main site, so keep it out of search results.
   robots: IS_MAINNET ? undefined : { index: false, follow: false, googleBot: { index: false, follow: false } },
   keywords: ["Sherwood", "ZKx8004", "zero-knowledge", "x402", "Robinhood Chain", "EVM", "EIP-3009", "USDG", "private agents", "autonomous agents"],

@@ -107,7 +107,7 @@ The network is inlined at build time, so mainnet and testnet are two deployments
 | Without a custom domain | `https://<project>.vercel.app` | `https://<project>-testnet.vercel.app` |
 | `NEXT_PUBLIC_ROBINHOOD_NETWORK` | `mainnet` | `testnet` |
 | `NEXT_PUBLIC_SITE_URL` | main domain | testnet subdomain |
-| `NEXT_PUBLIC_MAINNET_URL` / `NEXT_PUBLIC_TESTNET_URL` | both URLs | both URLs |
+| Switch link | `NEXT_PUBLIC_TESTNET_URL` | `NEXT_PUBLIC_MAINNET_URL` |
 | `NEXT_PUBLIC_REGISTRY_ADDRESS_*` | `_MAINNET` | `_TESTNET` (optional) |
 | `X402_FACILITATOR_PRIVATE_KEY` | mainnet relayer | **separate** testnet relayer |
 | Search engines | indexed | `noindex` (automatic) |
@@ -121,9 +121,11 @@ What changes automatically in a testnet build: an amber "Robinhood Chain testnet
 3. In the testnet project, set the variables from the table above for *Production*, then deploy.
 4. *Settings → Domains* → add `testnet.<your-domain>`.
 5. At your DNS provider, add `CNAME testnet → cname.vercel-dns.com` (Vercel shows the exact record).
-6. In **both** projects, set `NEXT_PUBLIC_MAINNET_URL` and `NEXT_PUBLIC_TESTNET_URL`, then redeploy so the switch links appear.
+6. Set each project's switch link, then redeploy so the buttons appear. Each build only reads its sibling's URL: the mainnet project needs `NEXT_PUBLIC_TESTNET_URL`, the testnet project needs `NEXT_PUBLIC_MAINNET_URL`.
 
-No custom domain yet? Skip steps 4 and 5 and use the free `*.vercel.app` URL each project already has, for example `sherwood.vercel.app` and `sherwood-testnet.vercel.app`. `NEXT_PUBLIC_SITE_URL` may stay empty (the Vercel production URL is used), but still set both switch URLs. Moving to a real domain later only means adding the domain in Vercel and updating those two variables.
+No custom domain yet? Skip steps 4 and 5 and use the free `*.vercel.app` URL each project already has, for example `sherwood.vercel.app` and `sherwood-testnet.vercel.app`. `NEXT_PUBLIC_SITE_URL` may stay empty (the Vercel production URL is used), but still set the switch URL. Moving to a real domain later means adding the domain in Vercel, updating `NEXT_PUBLIC_SITE_URL` here and the switch URL in the *other* project.
+
+**Retiring the old URL.** A custom domain does not stop the `*.vercel.app` URL from serving the same pages, which splits search results across two addresses. Set `LEGACY_HOSTS=<project>.vercel.app` in that project to redirect it to `NEXT_PUBLIC_SITE_URL` permanently. The canonical link tag points at `NEXT_PUBLIC_SITE_URL` either way, so pick one address and keep both variables agreeing with it — including `www`, which is a different host.
 
 **The testnet facilitator wallet**
 
@@ -158,8 +160,9 @@ $env:NEXT_PUBLIC_ROBINHOOD_NETWORK = "testnet"; npm run build; npm start -- -p 3
 | `BASE_URL` | scripts | App URL for the x402 HTTP step (default `http://localhost:3000`) |
 | `NEXT_PUBLIC_REGISTRY_ADDRESS_TESTNET` / `_MAINNET` | public | Pre-deployed registry addresses |
 | `NEXT_PUBLIC_TREASURY_ADDRESS` | public | Receives protocol fees in live mode; fees are skipped when empty |
-| `NEXT_PUBLIC_SITE_URL` | public | Open Graph base URL |
+| `NEXT_PUBLIC_SITE_URL` | public | Open Graph base URL and canonical link |
 | `NEXT_PUBLIC_MAINNET_URL` / `NEXT_PUBLIC_TESTNET_URL` | public | Sibling deployment URLs for the Mainnet ↔ Testnet switch (hidden while empty) |
+| `LEGACY_HOSTS` | server | Retired hosts to redirect to `NEXT_PUBLIC_SITE_URL`, comma-separated |
 | `X402_FACILITATOR_PRIVATE_KEY` | **server** | Relayer that settles `transferWithAuthorization` and pays gas |
 | `X402_PAY_TO` | server | Merchant address for x402 payments (defaults to the relayer) |
 | `X402_PRICE_USDG` | server | Price of `/api/x402/premium` (default `0.01`) |

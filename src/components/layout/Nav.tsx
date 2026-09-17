@@ -4,13 +4,14 @@ import { ArrowDown, List, X } from "@phosphor-icons/react/dist/ssr";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { BrandMark } from "@/components/brand/BrandMark";
+import { XLogo } from "@/components/brand/XLogo";
 import { Button } from "@/components/ui/Button";
-import { NAV_LINKS, isExternal } from "@/content/site";
+import { LINKS, NAV_LINKS, isExternal } from "@/content/site";
 import { cx } from "@/lib/cn";
 import { useMediaQuery, useScrolledPast } from "@/lib/hooks";
 import { EASE_OUT, EASE_SWIFT, canHover, useMotionPrefs } from "@/lib/motion";
 
-const WIDTH = { full: 1360, collapsed: 172, expanded: 660 } as const;
+const WIDTH = { full: 1360, collapsed: 172, expanded: 700 } as const;
 
 export function Nav() {
   const { instant } = useMotionPrefs();
@@ -127,6 +128,17 @@ export function Nav() {
                     </a>
                   );
                 })}
+                <a
+                  className={cx("navlink", "navlink--icon", glass && "is-ink")}
+                  href={LINKS.x}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Sherwood on X"
+                  title="Sherwood on X (@sherwoodpay)"
+                >
+                  <XLogo size={15} />
+                  <span className="navlink__rule" aria-hidden="true" />
+                </a>
               </nav>
 
               <Button
@@ -186,6 +198,16 @@ export function Nav() {
                 {link.label}
               </a>
             ))}
+            <a
+              href={LINKS.x}
+              onClick={closeAll}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav__mobile-link--icon"
+            >
+              <XLogo size={16} />
+              <span>Sherwood on X</span>
+            </a>
           </motion.nav>
         )}
       </AnimatePresence>

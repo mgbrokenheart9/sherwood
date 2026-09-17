@@ -131,6 +131,23 @@
   transform: scaleX(1);
 }
 
+.navlink--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 9px;
+}
+
+.navlink--icon svg {
+  display: block;
+}
+
+.nav__mobile-link--icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .nav__cta.btn {
   height: 38px;
   padding-inline: 16px;
@@ -1621,6 +1638,16 @@
 
 .footer__links a:hover {
   color: var(--ink);
+}
+
+.footer__link--x {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer__link--x svg {
+  display: block;
 }
 
 .footer__word {

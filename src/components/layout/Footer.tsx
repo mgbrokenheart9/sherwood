@@ -1,4 +1,5 @@
 import { Brand } from "@/components/brand/BrandMark";
+import { XLogo } from "@/components/brand/XLogo";
 import { MaskReveal } from "@/components/ui/MaskReveal";
 import { IS_MAINNET } from "@/content/deployment";
 import { FOOTER_LINKS, isExternal, SITE } from "@/content/site";
@@ -9,16 +10,22 @@ export function Footer() {
       <div className="footer__top">
         <Brand />
         <nav className="footer__links" aria-label="Footer">
-          {FOOTER_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={isExternal(link.href) && !link.href.startsWith("mailto:") ? "_blank" : undefined}
-              rel="noopener noreferrer"
-            >
-              {link.label}
-            </a>
-          ))}
+          {FOOTER_LINKS.map((link) => {
+            const isX = link.label === "X";
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                target={isExternal(link.href) && !link.href.startsWith("mailto:") ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                className={isX ? "footer__link--x" : undefined}
+                aria-label={isX ? "Sherwood on X" : undefined}
+              >
+                {isX && <XLogo size={14} />}
+                <span>{link.label}</span>
+              </a>
+            );
+          })}
         </nav>
       </div>
 

@@ -8,7 +8,7 @@ import { IS_MAINNET, NETWORK_LABEL, NETWORK_SWITCH } from "./deployment";
 export const LINKS = {
   github: "https://github.com/polurber/ZKx8004",
   docs: "https://github.com/polurber/ZKx8004#readme",
-  x: "https://x.com/zkx8004",
+  x: "https://x.com/sherwoodpay",
   discord: "https://discord.gg/zkx8004",
   email: "mailto:support@zkx8004.com",
   chainDocs: "https://docs.robinhood.com/chain",

@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@zkx8004",
+    site: "@sherwoodpay",
     title: SITE.title,
     description: SITE.description,
     images: ["/og-image.png"],

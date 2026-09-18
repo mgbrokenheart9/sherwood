@@ -24,7 +24,7 @@ import {
 } from "viem";
 import { USDG_ABI, USDG_DECIMALS } from "./abi";
 import { explorerTx, type NetworkConfig } from "./config";
-import { describeWalletError, switchToNetwork, walletChainId } from "./injected";
+import { describeWalletCode, describeWalletError, switchToNetwork, walletChainId } from "./injected";
 import { REGISTRY_ABI, REGISTRY_BYTECODE } from "./registry-artifact";
 import { authorizationTypedData, type TransferAuthorization } from "./x402";
 
@@ -97,6 +97,10 @@ export function describeChainError(error: unknown): string {
     if (revert instanceof ContractFunctionRevertedError) {
       return `Contract reverted: ${revert.data?.errorName ?? revert.reason ?? "unknown reason"}`;
     }
+    // Rejections and queued prompts reach us wrapped in a viem error, whose own wording
+    // ("Requested resource not available.") does not say what the person should do next.
+    const wallet = describeWalletCode(error.walk((cause) => describeWalletCode(cause) !== undefined));
+    if (wallet) return wallet;
     return error.shortMessage;
   }
   return describeWalletError(error);

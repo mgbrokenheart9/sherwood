@@ -96,10 +96,20 @@ export async function switchToNetwork(provider: EIP1193Provider, network: Networ
   }
 }
 
-export function describeWalletError(error: unknown): string {
+/**
+ * Wording for the EIP-1193 codes a wallet raises, or undefined for anything else.
+ * Separate from describeWalletError so chain errors can look for it inside a wrapped cause.
+ */
+export function describeWalletCode(error: unknown): string | undefined {
   const code = errorCode(error);
   if (code === 4001) return "Request rejected in the wallet.";
   if (code === -32002) return "A wallet request is already pending. Open your wallet to continue.";
+  return undefined;
+}
+
+export function describeWalletError(error: unknown): string {
+  const described = describeWalletCode(error);
+  if (described) return described;
   if (error instanceof Error) return error.message.split("\n")[0];
   return "Wallet request failed.";
 }

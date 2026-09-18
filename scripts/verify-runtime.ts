@@ -6,7 +6,9 @@
  */
 
 import "./lib/load-env";
+import { ResourceUnavailableRpcError, UserRejectedRequestError } from "viem";
 import { ACTIVE_NETWORK, registryEnvName } from "@/lib/chain/config";
+import { describeChainError } from "@/lib/chain/live";
 import { ActionValidationError } from "@/lib/runtime/actions";
 import { RUNTIME_TUNING } from "@/lib/runtime/catalog";
 import { randomAddress } from "@/lib/runtime/crypto";
@@ -44,6 +46,17 @@ async function main(): Promise<void> {
   await rejects(runtime.execute("connectWallet", { provider: "injected" }), /No EVM wallet detected/, "missing injected wallet is reported");
   const wallet = await runtime.execute("connectWallet", { provider: "demo" });
   check(/^0x[0-9a-fA-F]{40}$/.test(wallet.address) && runtime.getSnapshot().mode === "demo", "demo wallet has a 0x address");
+
+  /* wallet errors: viem wraps these, and its own wording does not say what to do next */
+  check(
+    describeChainError(new ResourceUnavailableRpcError(new Error("already pending"))) ===
+      "A wallet request is already pending. Open your wallet to continue.",
+    "a queued wallet prompt tells the person to open their wallet",
+  );
+  check(
+    describeChainError(new UserRejectedRequestError(new Error("denied"))) === "Request rejected in the wallet.",
+    "a rejected prompt is reported as a rejection",
+  );
 
   /* privacy: proofs and vault */
   const proof = await runtime.execute("generateZKProof", {

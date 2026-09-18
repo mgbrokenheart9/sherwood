@@ -151,6 +151,14 @@ $env:NEXT_PUBLIC_ROBINHOOD_NETWORK = "testnet"; npm run build; npm start -- -p 3
 
 `npm run e2e:testnet` runs the on-chain end-to-end flow on testnet (it writes `NEXT_PUBLIC_REGISTRY_ADDRESS_TESTNET` to `.env.local`). Pass `--testnet` to other scripts, for example `npm run chain:receipts -- <hash> --testnet`.
 
+Adding `--registry-only` deploys and exercises the registry without the two x402 steps, so it needs only ETH for gas — no USDG, no running app and no facilitator key. Use it to give a deployment a registry of its own:
+
+```bash
+npm run e2e:testnet -- --registry-only
+```
+
+Without a registry the console still deploys agents, but nothing is written on-chain, so a testnet without one never exercises the path mainnet takes.
+
 ## Environment variables
 
 | Variable | Scope | Purpose |
@@ -261,7 +269,7 @@ It also reads and writes the registry, decodes its custom errors and events, der
 | `npm run test:server` | HTTP checks of `/api/x402/*` against a running app (no funds needed) |
 | `npm run wallets:setup` | Create mainnet `.env.local` with facilitator and payer hot wallets |
 | `npm run wallets:new` | Generate one hot wallet into a git-ignored `.env*` file (key never printed) |
-| `npm run e2e:mainnet` | Real on-chain run: x402 HTTP + self-settled, registry, anchor, agent lifecycle (`--check`, `--wait`) |
+| `npm run e2e:mainnet` | Real on-chain run: x402 HTTP + self-settled, registry, anchor, agent lifecycle (`--check`, `--wait`, `--registry-only`) |
 | `npm run contracts:compile` | Compile the registry into `src/lib/chain/registry-artifact.ts` |
 | `npm run contracts:test` | Foundry unit, fuzz and invariant tests (`forge test`) |
 | `npm run vectors` / `vectors:check` | Regenerate or verify the cross-language test vectors |

@@ -2,12 +2,14 @@
  * On-chain end-to-end run on the active Robinhood Chain network (mainnet by
  * default). Spends real funds: USDG for two x402 payments and ETH for gas.
  *
- *   npm run e2e:mainnet -- --check   funding preflight only
- *   npm run e2e:mainnet -- --wait    wait until the wallets are funded, then run
- *   npm run e2e:mainnet              run now
+ *   npm run e2e:mainnet -- --check           funding preflight only
+ *   npm run e2e:mainnet -- --wait            wait until the wallets are funded, then run
+ *   npm run e2e:mainnet                      run now
+ *   npm run e2e:testnet -- --registry-only   deploy and exercise the registry, no x402
  *
  * The x402 HTTP step needs the app running with the same .env.local
- * (BASE_URL, default http://localhost:3000).
+ * (BASE_URL, default http://localhost:3000). --registry-only skips both x402
+ * steps, so it needs neither a running app, nor USDG, nor a facilitator key.
  */
 
 import "./lib/load-env";
@@ -36,6 +38,8 @@ const network = ACTIVE_NETWORK;
 const client = publicClientFor(network);
 const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 const args = new Set(process.argv.slice(2));
+/** Registry work only: no x402, so no USDG, no running app and no facilitator. */
+const registryOnly = args.has("--registry-only");
 
 const WAIT_INTERVAL_MS = 30_000;
 const WAIT_LIMIT_MS = Number(process.env.E2E_WAIT_MINUTES ?? 240) * 60_000;
@@ -57,7 +61,7 @@ function requireKey(name: string): Hex {
 }
 
 const payer = privateKeyToAccount(requireKey("E2E_PAYER_PRIVATE_KEY"));
-const facilitator = privateKeyToAccount(requireKey("X402_FACILITATOR_PRIVATE_KEY"));
+const facilitator = registryOnly ? payer : privateKeyToAccount(requireKey("X402_FACILITATOR_PRIVATE_KEY"));
 const payTo = (process.env.X402_PAY_TO ?? facilitator.address) as Address;
 const price = process.env.X402_PRICE_USDG ?? "0.01";
 const priceUnits = toUsdgUnits(price);
@@ -100,7 +104,8 @@ interface FundingRow {
 async function fundingPlan(): Promise<{ gasPrice: bigint; rows: FundingRow[]; funded: boolean }> {
   const gasPrice = await client.getGasPrice();
   const deployGas = configuredRegistry() ? 0n : GAS.deploy;
-  const payerGas = (GAS.authorization + GAS.anchor + GAS.register + GAS.execution + GAS.status + deployGas) * GAS_HEADROOM;
+  const x402Gas = registryOnly ? 0n : GAS.authorization;
+  const payerGas = (x402Gas + GAS.anchor + GAS.register + GAS.execution + GAS.status + deployGas) * GAS_HEADROOM;
 
   const [payerEth, payerUsdg, facilitatorEth] = await Promise.all([
     client.getBalance({ address: payer.address }),
@@ -110,9 +115,13 @@ async function fundingPlan(): Promise<{ gasPrice: bigint; rows: FundingRow[]; fu
 
   const rows: FundingRow[] = [
     { wallet: "Payer", address: payer.address, asset: "ETH", have: payerEth, need: payerGas * gasPrice, decimals: 18 },
-    { wallet: "Payer", address: payer.address, asset: "USDG", have: payerUsdg, need: priceUnits * 2n, decimals: USDG_DECIMALS },
-    { wallet: "Facilitator", address: facilitator.address, asset: "ETH", have: facilitatorEth, need: GAS.authorization * GAS_HEADROOM * gasPrice, decimals: 18 },
   ];
+  if (!registryOnly) {
+    rows.push(
+      { wallet: "Payer", address: payer.address, asset: "USDG", have: payerUsdg, need: priceUnits * 2n, decimals: USDG_DECIMALS },
+      { wallet: "Facilitator", address: facilitator.address, asset: "ETH", have: facilitatorEth, need: GAS.authorization * GAS_HEADROOM * gasPrice, decimals: 18 },
+    );
+  }
   return { gasPrice, rows, funded: rows.every((row) => row.have >= row.need) };
 }
 
@@ -281,10 +290,12 @@ async function main(): Promise<void> {
     process.exit(2);
   }
 
-  console.log("\n— x402 over HTTP (facilitator settlement)");
-  await x402OverHttp();
-  console.log("\n— x402 self-settled authorization");
-  await x402SelfSettled();
+  if (!registryOnly) {
+    console.log("\n— x402 over HTTP (facilitator settlement)");
+    await x402OverHttp();
+    console.log("\n— x402 self-settled authorization");
+    await x402SelfSettled();
+  }
   console.log("\n— ZKx8004 registry");
   await registryFlow();
 

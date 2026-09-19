@@ -3,7 +3,7 @@
 import { ArrowUpRight, Check } from "@phosphor-icons/react/dist/ssr";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cx } from "@/lib/cn";
-import { shorten } from "@/lib/format";
+import { formatDuration, shorten } from "@/lib/format";
 import type { RuntimeMode, TxRef } from "@/lib/runtime/types";
 
 export function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
@@ -165,10 +165,17 @@ export function TxLink({ tx, label }: { tx: TxRef; label?: string }) {
     );
   }
   return (
-    <a className="txlink mono" href={tx.explorerUrl} target="_blank" rel="noopener noreferrer" title="View on the Robinhood Chain explorer">
-      {text}
-      <ArrowUpRight size={11} weight="bold" aria-hidden="true" />
-    </a>
+    <>
+      <a className="txlink mono" href={tx.explorerUrl} target="_blank" rel="noopener noreferrer" title="View on the Robinhood Chain explorer">
+        {text}
+        <ArrowUpRight size={11} weight="bold" aria-hidden="true" />
+      </a>
+      {tx.confirmationMs !== undefined && (
+        <span className="txlink__time" title="Measured from broadcast to receipt in your browser">
+          {formatDuration(tx.confirmationMs)}
+        </span>
+      )}
+    </>
   );
 }
 

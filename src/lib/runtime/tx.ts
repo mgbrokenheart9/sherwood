@@ -10,6 +10,7 @@ export function liveTxRef(summary: TxSummary, network: NetworkConfig): TxRef {
     fee: summary.fee,
     mode: "live",
     explorerUrl: summary.explorerUrl,
+    confirmationMs: summary.confirmationMs,
   };
 }
 

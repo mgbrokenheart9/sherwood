@@ -23,7 +23,7 @@ import {
   type Hex,
 } from "viem";
 import { USDG_ABI, USDG_DECIMALS } from "./abi";
-import { explorerTx, type NetworkConfig } from "./config";
+import { BLOCK_TIME_MS, explorerTx, type NetworkConfig } from "./config";
 import { describeWalletCode, describeWalletError, switchToNetwork, walletChainId } from "./injected";
 import { REGISTRY_ABI, REGISTRY_BYTECODE } from "./registry-artifact";
 import { authorizationTypedData, type TransferAuthorization } from "./x402";
@@ -34,8 +34,11 @@ const RECEIPT_TIMEOUT_MS = 120_000;
 const rpcTransport = (network: NetworkConfig) =>
   fallback(network.rpcUrls.map((url) => http(url, { timeout: RPC_TIMEOUT_MS })));
 
+/** Receipts are polled at roughly block cadence; viem's default floor of 500 ms hides how fast the chain is. */
+const RECEIPT_POLL_MS = BLOCK_TIME_MS;
+
 function createChainClient(network: NetworkConfig) {
-  return createPublicClient({ chain: network.chain, transport: rpcTransport(network) });
+  return createPublicClient({ chain: network.chain, transport: rpcTransport(network), pollingInterval: RECEIPT_POLL_MS });
 }
 
 type ChainPublicClient = ReturnType<typeof createChainClient>;
@@ -118,6 +121,8 @@ export interface TxSummary {
   fee: number;
   contractAddress?: Address;
   explorerUrl: string;
+  /** Milliseconds from broadcast to receipt, as observed from this client. */
+  confirmationMs: number;
 }
 
 export class LiveChain {
@@ -151,7 +156,9 @@ export class LiveChain {
     try {
       await this.ensureNetwork();
       const hash = await send();
+      const broadcastAt = Date.now();
       const receipt = await this.client.waitForTransactionReceipt({ hash, timeout: RECEIPT_TIMEOUT_MS });
+      const confirmationMs = Date.now() - broadcastAt;
       const explorerUrl = explorerTx(this.network, hash);
       if (receipt.status !== "success") throw new Error(`Transaction reverted. See ${explorerUrl}`);
 
@@ -163,6 +170,7 @@ export class LiveChain {
         fee: Number(formatEther(receipt.gasUsed * receipt.effectiveGasPrice)),
         contractAddress: receipt.contractAddress ?? undefined,
         explorerUrl,
+        confirmationMs,
       };
     } catch (error) {
       throw new Error(describeChainError(error));

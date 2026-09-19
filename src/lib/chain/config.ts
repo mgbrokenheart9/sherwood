@@ -29,8 +29,15 @@ function optionalAddress(value: string | undefined): Address | undefined {
   return value && isAddress(value) ? getAddress(value) : undefined;
 }
 
+/**
+ * Both Robinhood Chain networks land blocks in about 100 ms. viem states this for
+ * mainnet but not for testnet, where it would otherwise assume a 12 s Ethereum block
+ * and poll for receipts every 4 s — making a 100 ms chain feel forty times slower.
+ */
+export const BLOCK_TIME_MS = 100;
+
 function withRpcs(base: Chain, rpcUrls: string[]): Chain {
-  return defineChain({ ...base, rpcUrls: { default: { http: rpcUrls } } });
+  return defineChain({ ...base, blockTime: base.blockTime ?? BLOCK_TIME_MS, rpcUrls: { default: { http: rpcUrls } } });
 }
 
 const MAINNET_RPCS = [

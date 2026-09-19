@@ -7,8 +7,9 @@
 
 import "./lib/load-env";
 import { ResourceUnavailableRpcError, UserRejectedRequestError } from "viem";
-import { ACTIVE_NETWORK, registryEnvName } from "@/lib/chain/config";
-import { describeChainError } from "@/lib/chain/live";
+import { ACTIVE_NETWORK, BLOCK_TIME_MS, NETWORKS, NETWORK_IDS, registryEnvName } from "@/lib/chain/config";
+import { describeChainError, publicClientFor } from "@/lib/chain/live";
+import { formatDuration } from "@/lib/format";
 import { ActionValidationError } from "@/lib/runtime/actions";
 import { RUNTIME_TUNING } from "@/lib/runtime/catalog";
 import { randomAddress } from "@/lib/runtime/crypto";
@@ -57,6 +58,13 @@ async function main(): Promise<void> {
     describeChainError(new UserRejectedRequestError(new Error("denied"))) === "Request rejected in the wallet.",
     "a rejected prompt is reported as a rejection",
   );
+
+  /* chain client: a 100 ms chain must not be polled on Ethereum's schedule */
+  check(
+    NETWORK_IDS.every((id) => publicClientFor(NETWORKS[id]).pollingInterval <= BLOCK_TIME_MS),
+    "receipts are polled at block cadence on both networks",
+  );
+  check(formatDuration(240) === "240 ms" && formatDuration(1500) === "1.50 s", "confirmation times read as milliseconds");
 
   /* privacy: proofs and vault */
   const proof = await runtime.execute("generateZKProof", {

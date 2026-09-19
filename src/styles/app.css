@@ -759,6 +759,18 @@
   color: #d4f5ec;
 }
 
+.txlink__time {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid #9fe0d033;
+  border-radius: 999px;
+  background: #9fe0d012;
+  color: #9fe0d0;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .input-group--wrap {
   flex-wrap: wrap;
 }

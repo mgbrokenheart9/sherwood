@@ -13,6 +13,11 @@ export function formatNumber(value: number): string {
   return value.toLocaleString(LOCALE);
 }
 
+/** Confirmation times on a 100 ms chain are usually milliseconds, so only seconds get a decimal. */
+export function formatDuration(ms: number): string {
+  return ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(2)} s`;
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;

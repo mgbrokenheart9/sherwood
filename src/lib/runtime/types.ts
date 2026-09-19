@@ -42,6 +42,8 @@ export interface TxRef {
   fee: number;
   mode: RuntimeMode;
   explorerUrl?: string;
+  /** Milliseconds from broadcast to receipt; live transactions only. */
+  confirmationMs?: number;
 }
 
 /* ------------------------------------------------------------------ wallet */
